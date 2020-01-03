@@ -1,0 +1,40 @@
+% rebase('base.html', title='Main Page')
+
+<div>Тесты с одним ответом</div>
+<table class="table table-sm">
+    <tr>
+        <td>№</td>
+        <td>Название</td>
+        <td></td>
+        <td></td>
+    </tr>
+    % for i, doc in enumerate(single_docs):
+    <tr>
+        <td>{{i+1}}</td>
+        <td>{{doc['name']}}</td>
+        <td>{{'Конвертирован' if doc['converted'] else 'Новый'}}</td>
+        <td><a href="{{'/'+doc['folder']+'/'+doc['name']}}">Открыть</a></td>
+    </tr>
+    % end
+</table>
+
+<br/>
+<hr/>
+<br/>
+
+<div>Тесты с несколькими ответами</div>
+<table class="table table-sm">
+    <tr>
+        <td>№</td>
+        <td>Название</td>
+        <td></td>
+    </tr>
+    % for i, doc in enumerate(multiple_docs):
+    <tr>
+        <td>{{i+1}}</td>
+        <td>{{doc['name']}}</td>
+        <td>{{'Конвертирован' if doc['converted'] else 'Новый'}}</td>
+        <td><a href="{{'/'+doc['folder']+'/'+doc['name']}}">Открыть</a></td>
+    </tr>
+    % end
+</table>

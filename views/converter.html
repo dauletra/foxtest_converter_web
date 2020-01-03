@@ -1,0 +1,23 @@
+% rebase('base.html', title='Converter Page')
+
+<p>Документ: <b>{{name+'.doc'}}</b></p>
+
+% if info is not None:
+    % for row in info:
+        <p>{{row[0]}} - {{row[1]}}</p>
+    % end
+    <form action="{{'/convert/'+folder+'/'+name+'.doc'}}" method="post">
+        <div class="form-group">
+            <button class="btn btn-success">Конвертировать</button>
+        </div>
+    </form>
+% end
+
+<form action="{{'/find/'+folder+'/'+name+'.doc'}}" method="post">
+    % choices_count = 5 if folder=='s' else 6
+    <p>Варианты: <b>{{choices_count}}</b></p>
+    <p>Режим: <b>{{'Один ответ' if folder=='s' else 'Несколько ответов'}}</b></p>
+    <div class="form-group">
+        <button class="btn btn-primary">Найти тесты</button>
+    </div>
+</form>
