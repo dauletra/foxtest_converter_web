@@ -1,0 +1,22 @@
+% rebase('base.html', title='Quiz Page')
+
+<p>Тест</p>
+<p>Название файла: {{name+'.json'}}</p>
+
+<p>Версия: {{subject['_v']}}</p>
+<p>Название: {{subject['name']}}</p>
+<p>Код: {{subject['code']}}</p>
+<p>Режим: {{subject['mode']}}</p>
+<p>Дата создания: {{subject['created']}}</p>
+<p>Комментарий: {{subject['comment']}}</p>
+
+% for quiz in subject['quizes']:
+<p>{{!quiz['question']}}</p>
+    % for answer in quiz['answers']:
+    <p>{{!answer}}</p>
+    % end
+
+    % for fake_answer in quiz['fake_answers']:
+    <p>{{!fake_answer}}</p>
+    % end
+% end
