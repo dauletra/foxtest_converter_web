@@ -123,8 +123,8 @@ def convert_(folder, name, document_path, map_json_path, quiz_json_path):
     quiz_comment = request.forms.comment
 
     subject = Subject.create(mode=mode, name=quiz_name, comment=quiz_comment, quizes=quizes)
-    with open(quiz_json_path, 'w') as file:
-        json.dump(subject, file, cls=SubjectEncoder)
+    with open(quiz_json_path, 'w', encoding='utf8') as file:
+        json.dump(subject, file, cls=SubjectEncoder, ensure_ascii=False)
     return redirect('/'+folder+'/'+name+'.doc')
 
 
