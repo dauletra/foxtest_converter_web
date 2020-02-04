@@ -14,7 +14,7 @@
         <tr>
             <td>{{index+1}}</td>
             <td>{{document['name']}}</td>
-            <td>{{'Конвертирован' if document['converted'] else 'Не конвертирован'}}</td>
+            <td>{{document['status']}}</td>
             <td><a href="{{'/'+folder['initial']+'/'+document['name']}}">Открыть</a></td>
         </tr>
         % end

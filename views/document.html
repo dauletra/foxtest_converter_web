@@ -11,7 +11,7 @@
     % end
 
     <form class="text-center" action="{{find_link}}" method="post">
-        <button class="btn btn-primary">Найти тесты</button>
+        <button class="btn btn-primary" type="submit" onclick="this.disabled=true; this.innerText='Поиск тестов...'; this.form.submit()">Найти тесты</button>
     </form>
 </div>
 
@@ -28,7 +28,7 @@
             <textarea id="comment" name="comment" class="form-control"></textarea>
         </div>
         <div class="form-group text-center">
-            <button class="btn btn-success">Конвертировать</button>
+            <button class="btn btn-success" type="submit" onclick="this.disabled=true; this.innerText='Конвертирование...'; this.form.submit()">Конвертировать</button>
         </div>
     </form>
 </div>

@@ -34,11 +34,17 @@ def home():
         document_names = [f for f in os.listdir(abs_path) if os.path.isfile(os.path.join(abs_path, f)) and os.path.splitext(f)[1] == '.doc']
         documents = []
         for document_name in document_names:
-            test_name = os.path.splitext(document_name)[0] + '.json'
-            converted = os.path.exists(os.path.join(abs_path, test_name))
+            quiz_json_name = os.path.splitext(document_name)[0] + '.json'
+            map_json_name = os.path.splitext(document_name)[0] + '.map.json'
+            status = 'Новый'
+            if os.path.exists(os.path.join(abs_path, quiz_json_name)):
+                status = 'Конвертирован'
+            elif os.path.exists(os.path.join(abs_path, map_json_name)):
+                status = 'Не ковертирован'
+
             documents.append({
                 'name': document_name,
-                'converted': converted
+                'status': status
             })
         folders.append({
             'name': dir['name'],
