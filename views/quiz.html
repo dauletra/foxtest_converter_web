@@ -1,21 +1,24 @@
 % rebase('base.html', title='Quiz Page')
 
-<p>Тест</p>
-<p>Название файла: {{name+'.json'}}</p>
+<div class="my-3 p-2 border rounded shadow-sm">
+    <p>Название файла: {{name+'.json'}}</p>
+    <hr />
+    <p>Название: {{subject['name']}}</p>
+    <p>Версия теста: {{subject['_v']}}</p>
+    <p>Режим: {{subject['mode']}}</p>
+    <p>Дата создания: {{subject['created']}}</p>
+    <p>Комментарий: {{subject['comment']}}</p>
+</div>
 
-<p>Версия: {{subject['_v']}}</p>
-<p>Название: {{subject['name']}}</p>
-<p>Режим: {{subject['mode']}}</p>
-<p>Дата создания: {{subject['created']}}</p>
-<p>Комментарий: {{subject['comment']}}</p>
+    % for quiz in subject['quizes']:
+    <div class="my-2 p-2 border rounded shadow-sm">
+        <p>{{!quiz['question']}}</p>
+            % for answer in quiz['answers']:
+            <p>{{!answer[0]}} {{!answer[1]}}</p>
+            % end
 
-% for quiz in subject['quizes']:
-<p>{{!quiz['question']}}</p>
-    % for answer in quiz['answers']:
-    <p>{{!answer[0]}} {{!answer[1]}}</p>
+            % for fake_answer in quiz['fake_answers']:
+            <p>{{!fake_answer[0]}} {{!fake_answer[1]}}</p>
+            % end
+    </div>
     % end
-
-    % for fake_answer in quiz['fake_answers']:
-    <p>{{!fake_answer[0]}} {{!fake_answer[1]}}</p>
-    % end
-% end
