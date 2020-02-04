@@ -74,15 +74,24 @@ def find_questions_single(doc) -> QuizMap:
             question_map = QuestionMap()
             question_map.real_number = int(number)
             question_map.paragraph_id = i
+
             question_map.answers = []
             question_map.fake_answers = []
 
             if choice_pattern.match(doc.Paragraphs(i + 1).Range.Text):
-                question_map.answers.append(i + 1)
+                pre_count = doc.Paragraphs(i + 1).Range.Text.index(")") + 1
+                question_map.answers.append(
+                    {"paragraph_id": i + 1,
+                     "pre_count": pre_count}
+                )
 
             for j in range(2, choices_count + 1):
                 if choice_pattern.match(doc.Paragraphs(i + j).Range.Text):
-                    question_map.fake_answers.append(i + j)
+                    pre_count = doc.Paragraphs(i + j).Range.Text.index(")") + 1
+                    question_map.fake_answers.append(
+                        {"paragraph_id": i + j,
+                         "pre_count": pre_count}
+                    )
 
             ans_len = len(question_map.answers) + len(question_map.fake_answers)
             if ans_len == choices_count:
@@ -98,6 +107,8 @@ def find_questions_multiple(doc) -> QuizMap:
     choice_pattern = re.compile('^[A-ZА-ЯӘҢҒҮҰҚӨҺ] ?\) ?\[(\d\.\d)]')
 
     quiz_map = QuizMap()
+    quiz_map.questions = []
+    quiz_map.error_questions = []
 
     for i, para in enumerate(doc.Paragraphs, 1):
         if question_pattern.match(para.Range.Text):
@@ -113,11 +124,18 @@ def find_questions_multiple(doc) -> QuizMap:
                 id = i + j
                 if choice_pattern.match(doc.Paragraphs(id).Range.Text):
                     empty, number, *_ = choice_pattern.split(doc.Paragraphs(id).Range.Text)
+                    pre_count = doc.Paragraphs(id).Range.Text.index("]") + 1
                     number = float(number)
                     if number > 0:
-                        question_map.answers.append(id)
+                        question_map.answers.append(
+                            {"paragraph_id": id,
+                             "pre_count": pre_count}
+                        )
                     else:
-                        question_map.fake_answers.append(id)
+                        question_map.fake_answers.append(
+                            {"paragraph_id": id,
+                             "pre_count": pre_count}
+                        )
 
             ans_len = len(question_map.answers) + len(question_map.fake_answers)
             if ans_len == choices_count:
@@ -153,11 +171,17 @@ def convert(doc, quiz_map: QuizMap) -> list:
 
         quiz['answers'] = list()
         for answer in question_map.answers:
-            quiz['answers'].append(paragraph_to_html(doc.Paragraphs(answer)))
+            full_text = paragraph_to_html(doc.Paragraphs(answer['paragraph_id']))
+            pre = full_text[:answer['pre_count']].strip()
+            text = full_text[answer['pre_count']:].strip()
+            quiz['answers'].append([pre, text])
 
         quiz['fake_answers'] = list()
         for fake_answer in question_map.fake_answers:
-            quiz['fake_answers'].append(paragraph_to_html(doc.Paragraphs(fake_answer)))
+            full_text = paragraph_to_html(doc.Paragraphs(fake_answer['paragraph_id']))
+            pre = full_text[:fake_answer['pre_count']].strip()
+            text = full_text[fake_answer['pre_count']:].strip()
+            quiz['fake_answers'].append([pre, text])
         quizes.append(quiz)
     print()
     return quizes
