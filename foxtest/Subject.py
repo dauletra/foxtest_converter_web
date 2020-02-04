@@ -23,6 +23,17 @@ class Subject:
         subject.quizes = quizes or []
         return subject
 
+    def get_dict(self):
+        return {
+            '_v': self._v,
+            'name': self.name,
+            'mode': self.mode,
+            'created': self.created,
+            'comment': self.comment,
+            'quizes': self.quizes
+        }
+
+
 class SubjectEncoder(json.JSONEncoder):
     def default(self, obj: Subject):
         if isinstance(obj, Subject):

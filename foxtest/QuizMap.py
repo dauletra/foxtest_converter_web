@@ -34,10 +34,10 @@ class QuizMap:
 
     @property
     def info(self):
-        a = ('Вопросы: ', f'{self.min}-{self.max}')
-        b = ('Количество: ', str(self.count))
-        c = ('Не найдено: ', ', '.join([str(num) for num in self.missed_numbers]))
-        d = ('С ошибками: ', ', '.join([str(num) for num in self.error_numbers]))
+        a = ('Вопросы', f'{self.min}-{self.max}')
+        b = ('Количество', str(self.count))
+        c = ('Не найдено', ', '.join([str(num) for num in self.missed_numbers]))
+        d = ('С ошибками', ', '.join([str(num) for num in self.error_numbers]))
         return a, b, c, d
 
     @property
