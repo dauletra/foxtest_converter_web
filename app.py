@@ -4,29 +4,42 @@ from time import time
 
 from bottle import run, route, static_file, template, view, request, redirect
 
-from utilities import get_documents
 from foxtest.Converter import *
 from foxtest.QuizMap import *
 from foxtest.Subject import *
 
 
-@route('/static/<filename:path>')
-def static(filename):
-    return static_file(filename, root='static/')
-
-
 @route('/')
 def home():
-    try:
-        single_documents, multiple_documents = get_documents()
-    except NotADirectoryError as e:
-        return str(e)
-    return template('home.html', {'single_docs': single_documents, 'multiple_docs': multiple_documents})
+    main_dir = 'docs'
+    quiz_categories = ['singer', 'mullein']
+    folders = []
+    
+    for dir in quiz_categories:
+        abs_path = os.path.abspath(os.path.join(main_dir, dir))
+        if not os.path.exists(abs_path):
+            raise NotADirectoryError(f'Папка {abs_path} не существует')
+        document_names = [f for f in os.listdir(abs_path) if os.path.isfile(os.path.join(abs_path, f)) and os.path.splitext(f)[1] == '.doc']
+        documents = []
+        for document_name in document_names:
+            test_name = os.path.splitext(document_name)[0] + '.json'
+            converted = os.path.exists(os.path.join(abs_path, test_name))
+            documents.append({
+                'name': document_name,
+                'converted': converted
+            })
+        folders.append({
+            'name': dir,
+            'initial': dir[0],
+            'documents': documents
+        })
+
+    return template('home.html', {'folders': folders})
 
 
 @route('/<folder:re:[ms]>/<name>.doc')
 def document(folder, name):
-    dir = 'docs/single/' if folder == 's' else 'docs/multiple/'
+    dir = 'docs/singer/' if folder == 's' else 'docs/mullein/'
     abs_dir = os.path.abspath(dir)
     # if quiz converted then redirect to /quiz/name.json
     quiz_json_path = os.path.join(abs_dir, name + '.json')
@@ -45,7 +58,7 @@ def document(folder, name):
 
 @route('/<folder:re:[ms]>/<name>.json')
 def quiz(folder, name):
-    dir = 'docs/single/' if folder == 's' else 'docs/multiple'
+    dir = 'docs/singer/' if folder == 's' else 'docs/multiple'
     abs_dir = os.path.abspath(dir)
     quiz_json_path = os.path.join(abs_dir, name + '.json')
     if not os.path.exists(quiz_json_path):
@@ -57,7 +70,7 @@ def quiz(folder, name):
 
 @route('/find/<folder:re:[ms]>/<name>.doc', method='POST')
 def find(folder, name):
-    dir = 'docs/single/' if folder == 's' else 'docs/multiple/'
+    dir = 'docs/singer/' if folder == 's' else 'docs/mullein/'
     abs_dir = os.path.abspath(dir)
     document_path = os.path.join(abs_dir, name + '.doc')
     if not os.path.exists(document_path):
@@ -73,7 +86,7 @@ def find(folder, name):
 
 @route('/convert/<folder:re:[ms]>/<name>.doc', method='POST')
 def convert_(folder, name):
-    dir = 'docs/single/' if folder == 's' else 'docs/multiple/'
+    dir = 'docs/singer/' if folder == 's' else 'docs/mullein/'
     abs_dir = os.path.abspath(dir)
     document_path = os.path.join(abs_dir, name + '.doc')
     map_json_path = os.path.join(abs_dir, name + '.map.json')
@@ -92,6 +105,11 @@ def convert_(folder, name):
     with open(quiz_json_path, 'w') as file:
         json.dump(subject, file, cls=SubjectEncoder)
     return redirect('/'+folder+'/'+name+'.doc')
+
+
+@route('/static/<filename:path>')
+def static(filename):
+    return static_file(filename, root='static/')
 
 
 run(host='localhost', port=8080, debug=True, reloader=True)
