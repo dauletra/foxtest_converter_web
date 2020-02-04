@@ -85,7 +85,7 @@ class QuizMapEncoder(json.JSONEncoder):
 
 
 def decode_quiz_map(dic):
-    if dic.get('questions') and dic.get('error_questions'):
+    if dic.get('questions') or dic.get('error_questions'):
         return QuizMap.create(dic['questions'], dic['error_questions'])
     else:
         return dic
