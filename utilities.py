@@ -2,8 +2,8 @@ from os import listdir
 from os.path import isfile, join, exists, splitext
 
 main_dir = 'docs'
-single_dir = 'docs/single'
-multiple_dir = 'docs/multiple'
+single_dir = 'docs/singer'
+multiple_dir = 'docs/mullein'
 
 
 def converted(name, mode) -> bool:
@@ -19,6 +19,7 @@ def get_documents() -> tuple:
         raise NotADirectoryError(f'Папка <b>{single_dir}</b> не найден')
     if not exists(multiple_dir):
         raise NotADirectoryError(f'Папка <b>{multiple_dir}</b> не найден')
+
     single_docs = [f for f in listdir(single_dir) if isfile(join(single_dir, f)) and splitext(f)[1] == '.doc']
     single_documents = []
     for doc in single_docs:
