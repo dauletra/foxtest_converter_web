@@ -57,6 +57,25 @@ def paragraph_to_html(para):
     return para.Range.Text.strip()
 
 
+def pre_find(func):
+    def wrapper(doc):
+        doc.Range().Find.Execute(FindText='^l',
+                                 MatchCase=False,
+                                 MatchWholeWord=False,
+                                 MatchWildcards=False,
+                                 MatchSoundsLike=False,
+                                 MatchAllWordForms=False,
+                                 Forward=True,
+                                 Wrap=WdFindWrap.wdFindContinue,
+                                 Format=False,
+                                 ReplaceWith='^p',
+                                 Replace=WdReplace.wdReplaceAll)
+        doc.Save()
+        return func(doc)
+    return wrapper
+
+
+@pre_find
 def find_questions_single(doc) -> QuizMap:
     choices_count = 5
     question_pattern = re.compile('(^ ?\d{1,3})( ?\. *)')
@@ -101,6 +120,7 @@ def find_questions_single(doc) -> QuizMap:
     return quiz_map
 
 
+@pre_find
 def find_questions_multiple(doc) -> QuizMap:
     choices_count = 6
     question_pattern = re.compile('(^ ?\d{1,3})( ?\. *)')
@@ -145,22 +165,28 @@ def find_questions_multiple(doc) -> QuizMap:
     return quiz_map
 
 
+def pre_convert(func):
+    def wrapper(doc, quiz_map):
+        symbols = (('^u61477', '%'),
+                   ('^u61513', 'I'),
+                   ('^u61472', ' '))
+        for code, symbol in symbols:
+            doc.Range().Find.Execute(FindText=code,
+                                     MatchCase=False,
+                                     MatchWholeWord=False,
+                                     MatchWildcards=False,
+                                     MatchSoundsLike=False,
+                                     MatchAllWordForms=False,
+                                     Forward=True,
+                                     Wrap=WdFindWrap.wdFindContinue,
+                                     Format=False,
+                                     ReplaceWith=symbol,
+                                     Replace=WdReplace.wdReplaceAll)
+        return func(doc, quiz_map)
+    return wrapper
+
+
 def convert(doc, quiz_map: QuizMap) -> list:
-    symbols = (('^u61477', '%'),
-               ('^u61513', 'I'),
-               ('^u61472', ' '))
-    for code, symbol in symbols:
-        doc.Range().Find.Execute(FindText=code,
-                                 MatchCase=False,
-                                 MatchWholeWord=False,
-                                 MatchWildcards=False,
-                                 MatchSoundsLike=False,
-                                 MatchAllWordForms=False,
-                                 Forward=True,
-                                 Wrap=WdFindWrap.wdFindContinue,
-                                 Format=False,
-                                 ReplaceWith=symbol,
-                                 Replace=WdReplace.wdReplaceAll)
     quizes = list()
     for id, question_map in enumerate(quiz_map.questions, 1):
         sys.stdout.write('\rConverting... {already}/{all}'.format(already=question_map.real_number, all=quiz_map.max))
