@@ -169,7 +169,12 @@ def pre_convert(func):
     def wrapper(doc, quiz_map):
         symbols = (('^u61477', '%'),
                    ('^u61513', 'I'),
-                   ('^u61472', ' '))
+                   ('^u61472', ' '),
+                   ('&', '&amp;'),
+                   ('<', '&lt;'),
+                   ('>', '&gt;'),
+                   ('"', '&quot;'),
+                   ('\'', '&#39;'))
         for code, symbol in symbols:
             doc.Range().Find.Execute(FindText=code,
                                      MatchCase=False,
@@ -186,6 +191,7 @@ def pre_convert(func):
     return wrapper
 
 
+@pre_convert
 def convert(doc, quiz_map: QuizMap) -> list:
     quizes = list()
     for id, question_map in enumerate(quiz_map.questions, 1):
