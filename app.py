@@ -31,7 +31,7 @@ def home():
         abs_path = os.path.abspath(os.path.join(main_dir, dir['name']))
         if not os.path.exists(abs_path):
             raise NotADirectoryError(f'Папка {abs_path} не существует')
-        document_names = [f for f in os.listdir(abs_path) if os.path.isfile(os.path.join(abs_path, f)) and os.path.splitext(f)[1] == '.doc']
+        document_names = [f for f in os.listdir(abs_path) if os.path.isfile(os.path.join(abs_path, f)) and os.path.splitext(f)[1] == '.doc' and os.path.basename(f)[:2] != '~$']
         documents = []
         for document_name in document_names:
             quiz_json_name = os.path.splitext(document_name)[0] + '.json'
@@ -76,7 +76,7 @@ def quiz(folder, name, document_path, map_json_path, quiz_json_path):
         return f'Ошибка. Тест с названием {name}.json не найден'
     with open(quiz_json_path, 'r', encoding='utf-8') as file:
         subject = json.load(file, object_hook=decode_subject)
-    return template('quiz.html', {'name': name, 'subject': subject.get_dict()})
+    return template('quiz.html', {'name': name, 'subject': subject.get_readable_dict()})
 
 
 @route('/<folder:re:[ms]>/<name>.doc')

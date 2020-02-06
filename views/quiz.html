@@ -10,15 +10,21 @@
     <p>Комментарий: {{subject['comment']}}</p>
 </div>
 
-    % for quiz in subject['quizes']:
-    <div class="my-2 p-2 border rounded shadow-sm">
-        <p>{{!quiz['question']}}</p>
-            % for answer in quiz['answers']:
-            <p>{{!answer[0]}} {{!answer[1]}}</p>
-            % end
+<div class="my-3 p-2 border rounded shadow-sm small">
+    <p>Вопросы: {{subject['questions_range']}}</p>
+    <p>Количество вопросов: {{subject['quizes_length']}}</p>
+    <p>Не найденные вопросы: {{subject['not_found_question_numbers']}}</p>
+</div>
 
-            % for fake_answer in quiz['fake_answers']:
-            <p>{{!fake_answer[0]}} {{!fake_answer[1]}}</p>
-            % end
-    </div>
-    % end
+% for quiz in subject['quizes']:
+<div class="my-2 p-2 border rounded shadow-sm">
+    <p>{{!quiz['question']}}</p>
+        % for answer in quiz['answers']:
+        <p>{{!answer[0]}} {{!answer[1]}}</p>
+        % end
+
+        % for fake_answer in quiz['fake_answers']:
+        <p>{{!fake_answer[0]}} {{!fake_answer[1]}}</p>
+        % end
+</div>
+% end
