@@ -1,6 +1,7 @@
 import os
 import json
 from time import time
+from datetime import datetime
 
 from bottle import run, route, static_file, template, view, request, redirect
 
@@ -31,28 +32,38 @@ def home():
         abs_path = os.path.abspath(os.path.join(main_dir, dir['name']))
         if not os.path.exists(abs_path):
             raise NotADirectoryError(f'Папка {abs_path} не существует')
+        mod_time = os.path.getmtime(abs_path)
         document_names = [f for f in os.listdir(abs_path) if os.path.isfile(os.path.join(abs_path, f)) and os.path.splitext(f)[1] == '.doc' and os.path.basename(f)[:2] != '~$']
         documents = []
         for document_name in document_names:
             quiz_json_name = os.path.splitext(document_name)[0] + '.json'
             map_json_name = os.path.splitext(document_name)[0] + '.map.json'
             status = 'Новый'
+            status_number = 1
             if os.path.exists(os.path.join(abs_path, quiz_json_name)):
                 status = 'Конвертирован'
+                status_number = 5
             elif os.path.exists(os.path.join(abs_path, map_json_name)):
                 status = 'Не ковертирован'
-
+                status_number = 3
+            document_mod_time = os.path.getmtime(os.path.join(abs_path, document_name))
             documents.append({
                 'name': document_name,
-                'status': status
+                'status': status,
+                'status_number': status_number,
+                'mod_time': document_mod_time,
+                'mod_time_readable': datetime.fromtimestamp(document_mod_time).strftime('%d-%m-%Y %H:%M')
             })
+        sorted_documents = sorted(documents, key=lambda document: document['mod_time'], reverse=True)
         folders.append({
             'name': dir['name'],
             'initial': dir['initial'],
-            'documents': documents
+            'documents': sorted_documents,
+            'mod_time': mod_time,
+            'mod_time_readable': datetime.fromtimestamp(mod_time).strftime('%d-%m-%Y %H:%M')
         })
-
-    return template('home.html', {'folders': folders})
+    sorted_folders = sorted(folders, key=lambda folder: folder['mod_time'], reverse=True)
+    return template('home.html', {'folders': sorted_folders})
 
 
 def document_paths(func):

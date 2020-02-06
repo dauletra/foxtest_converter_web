@@ -1,21 +1,31 @@
 % rebase('base.html', title='Main Page')
 
+% status_class_menu = {1: 'btn-secondary', 3: 'btn-warning', 5: 'btn-success'}
+
 % for folder in folders:
 <div class="my-4 p-2 border rounded shadow-sm">
-    <div class="h4 text-capitalize">{{folder['name']}}</div>
+    <div class="text-capitalize d-flex justify-content-between ">
+        <span class="h4 ">{{folder['name']}}</span><span class="text-muted">{{folder['mod_time_readable']}}</span>
+    </div>
+
     <table class="table table-sm">
         <tr class="font-weight-bold">
-            <td>№</td>
-            <td>Название</td>
-            <td>Статус</td>
-            <td></td>
+            <td style="width: 30px">№</td>
+            <td style="width: 220px;">Название</td>
+            <td>Изменен</td>
+
+            <td style="width: 170px">Статус</td>
         </tr>
         % for index, document in enumerate(folder['documents']):
+        % status_class = status_class_menu[document['status_number']]
         <tr>
             <td>{{index+1}}</td>
-            <td>{{document['name']}}</td>
-            <td>{{document['status']}}</td>
-            <td><a href="{{'/'+folder['initial']+'/'+document['name']}}">Открыть</a></td>
+            <td class="overflow-hidden" style="max-width: 220px">{{document['name']}}</td>
+            <td class="text-muted">{{document['mod_time_readable']}}</td>
+
+            <td class="">
+                <a class="btn {{status_class}} btn-block btn-sm" href="{{'/'+folder['initial']+'/'+document['name']}}">{{document['status']}}</a>
+            </td>
         </tr>
         % end
     </table>
