@@ -59,17 +59,20 @@ def paragraph_to_html(para):
 
 def pre_find(func):
     def wrapper(doc):
-        doc.Range().Find.Execute(FindText='^l',
-                                 MatchCase=False,
-                                 MatchWholeWord=False,
-                                 MatchWildcards=False,
-                                 MatchSoundsLike=False,
-                                 MatchAllWordForms=False,
-                                 Forward=True,
-                                 Wrap=WdFindWrap.wdFindContinue,
-                                 Format=False,
-                                 ReplaceWith='^p',
-                                 Replace=WdReplace.wdReplaceAll)
+        symbols = (('^13', '^p'),
+                   ('^l', '^p'))
+        for from_, to_ in symbols:
+            doc.Range().Find.Execute(FindText=from_,
+                                     MatchCase=False,
+                                     MatchWholeWord=False,
+                                     MatchWildcards=False,
+                                     MatchSoundsLike=False,
+                                     MatchAllWordForms=False,
+                                     Forward=True,
+                                     Wrap=WdFindWrap.wdFindContinue,
+                                     Format=False,
+                                     ReplaceWith=to_,
+                                     Replace=WdReplace.wdReplaceAll)
         doc.Save()
         return func(doc)
     return wrapper
