@@ -3,3 +3,5 @@ __pycache__/
 venv/
 docs/
 example.py
+/test.foxtest
+converter.py

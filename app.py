@@ -13,12 +13,12 @@ from foxtest.Subject import *
 main_dir = 'docs'
 quiz_categories = [
     {
-        'name': 'mullein',
+        'name': 'multiple',
         'initial': 'm',
         'mode': 2
     },
     {
-        'name': 'singer',
+        'name': 'single',
         'initial': 's',
         'mode': 1
     }
@@ -112,9 +112,12 @@ def document(folder, name, document_path, map_json_path, quiz_json_path):
 def find(folder, name, document_path, map_json_path, quiz_json_path):
     if not os.path.exists(document_path):
         return f'Ошибка: документ не найден. Путь: {document_path}'
+
+    choices_len = request.forms['choices_len']
+
     word, doc = open_document(document_path)
     find = {'m': find_questions_multiple, 's': find_questions_single}
-    quiz_map = find[folder](doc)
+    quiz_map = find[folder](doc, choices_len=choices_len)
     with open(map_json_path, 'w') as file:
         json.dump(quiz_map, file, cls=QuizMapEncoder)
     return redirect('/'+folder+'/'+name+'.doc')

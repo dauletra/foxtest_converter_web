@@ -11,6 +11,12 @@
     % end
 
     <form class="text-center" action="{{find_link}}" method="post">
+        <div class="form-group row">
+            <label class="col-form-label col-sm-5" for="choices_len">Количество вариантов:</label>
+            <div class="col-sm-7" style="max-width: 100px">
+                <input class="form-control" required type="number" name="choices_len" id="choices_len" value="5" />
+            </div>
+        </div>
         <button class="btn btn-primary" type="submit" onclick="this.disabled=true; this.innerText='Поиск тестов...'; this.form.submit()">Найти тесты</button>
     </form>
 </div>

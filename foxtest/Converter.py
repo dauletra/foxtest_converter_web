@@ -25,25 +25,51 @@ def open_document(path: str) -> tuple:
     return word, doc
 
 
-def paragraph_to_html(para):
-    range = para.Range
-    range.Find.Text = ''
-    range.Find.Font.Superscript = True
-    while range.Find.Execute():
-        range.InsertBefore('<sup>')
-        range.InsertAfter('</sup>')
-        range.Font.Superscript = False
-        range.Start = range.End
-        range.End = para.Range.End
+def paragraph_to_html(doc, para):
+    rng = doc.Range(para.Range.Start, para.Range.End - 1)
+    rng.Find.Text = ''
+    rng.Find.Font.Superscript = True
+    while rng.Find.Execute():
+        rng.InsertBefore('<sup>')
+        rng.InsertAfter('</sup>')
+        rng.Font.Superscript = False
+        rng = doc.Range(rng.End, para.Range.End - 1)
 
-    range = para.Range
-    range.Find.Font.Subscript = True
-    while range.Find.Execute():
-        range.InsertBefore('<sub>')
-        range.InsertAfter('</sub>')
-        range.Font.Subscript = False
-        range.Start = range.End
-        range.End = para.Range.End
+    rng = doc.Range(para.Range.Start, para.Range.End - 1)
+    rng.Find.Font.Subscript = True
+    while rng.Find.Execute():
+        rng.InsertBefore('<sub>')
+        rng.InsertAfter('</sub>')
+        rng.Font.Subscript = False
+        rng = doc.Range(rng.End, para.Range.End - 1)
+
+    rng = doc.Range(para.Range.Start, para.Range.End - 1)
+    rng.Find.Font.Underline = True
+    while rng.Find.Execute():
+        rng.InsertBefore('<u>')
+        rng.InsertAfter('</u>')
+        rng.Font.Underline = False
+        rng = doc.Range(rng.End, para.Range.End - 1)
+
+    rng = doc.Range(para.Range.Start, para.Range.End - 1)
+    rng.Find.Font.Italic = True
+    while rng.Find.Execute():
+        rng.InsertBefore('<i>')
+        rng.InsertAfter('</i>')
+        rng.Font.Italic = False
+        rng = doc.Range(rng.End, para.Range.End - 1)
+
+    para.Range.Find.Execute(FindText='\\n',
+                             MatchCase=False,
+                             MatchWholeWord=False,
+                             MatchWildcards=False,
+                             MatchSoundsLike=False,
+                             MatchAllWordForms=False,
+                             Forward=True,
+                             Wrap=WdFindWrap.wdFindContinue,
+                             Format=False,
+                             ReplaceWith='<br/>',
+                             Replace=WdReplace.wdReplaceAll)
 
     shapeScale = 4
     img_temp = '<img align="Middle" src="data:image/png;base64,{0}" />'
@@ -54,11 +80,12 @@ def paragraph_to_html(para):
         wmfim.save(bimage, format='png')
         img_str = base64.b64encode(bimage.getvalue())
         shape.Range.Text = img_temp.format(img_str.decode('ascii'))
+
     return para.Range.Text.strip()
 
 
 def pre_find(func):
-    def wrapper(doc):
+    def wrapper(doc, choices_len):
         symbols = (('^13', '^p'),
                    ('^l', '^p'))
         for from_, to_ in symbols:
@@ -74,13 +101,20 @@ def pre_find(func):
                                      ReplaceWith=to_,
                                      Replace=WdReplace.wdReplaceAll)
         doc.Save()
-        return func(doc)
+
+        if type(choices_len) is not int:
+            try:
+                choices_len = int(choices_len)
+            except Exception as e:
+                raise e
+
+        return func(doc, choices_len)
     return wrapper
 
 
 @pre_find
-def find_questions_single(doc) -> QuizMap:
-    choices_count = 5
+def find_questions_single(doc, choices_len=5) -> QuizMap:
+    choices_count = choices_len
     question_pattern = re.compile('(^ ?\d{1,3})( ?\. *)')
     choice_pattern = re.compile('^ ?[A-ZА-Я]{1} ?\)')
 
@@ -124,8 +158,8 @@ def find_questions_single(doc) -> QuizMap:
 
 
 @pre_find
-def find_questions_multiple(doc) -> QuizMap:
-    choices_count = 6
+def find_questions_multiple(doc, choices_len=6) -> QuizMap:
+    choices_count = choices_len
     question_pattern = re.compile('(^ ?\d{1,3})( ?\. *)')
     choice_pattern = re.compile('^[A-ZА-ЯӘҢҒҮҰҚӨҺ] ?\) ?\[(\d\.\d)]')
 
@@ -202,18 +236,18 @@ def convert(doc, quiz_map: QuizMap) -> list:
         quiz = dict()
         quiz['id'] = id
         quiz['number'] = question_map.real_number
-        quiz['question'] = paragraph_to_html(doc.Paragraphs(question_map.paragraph_id))
+        quiz['question'] = paragraph_to_html(doc, doc.Paragraphs(question_map.paragraph_id))
 
         quiz['answers'] = list()
         for answer in question_map.answers:
-            full_text = paragraph_to_html(doc.Paragraphs(answer['paragraph_id']))
+            full_text = paragraph_to_html(doc, doc.Paragraphs(answer['paragraph_id']))
             pre = full_text[:answer['pre_count']].strip()
             text = full_text[answer['pre_count']:].strip()
             quiz['answers'].append([pre, text])
 
         quiz['fake_answers'] = list()
         for fake_answer in question_map.fake_answers:
-            full_text = paragraph_to_html(doc.Paragraphs(fake_answer['paragraph_id']))
+            full_text = paragraph_to_html(doc, doc.Paragraphs(fake_answer['paragraph_id']))
             pre = full_text[:fake_answer['pre_count']].strip()
             text = full_text[fake_answer['pre_count']:].strip()
             quiz['fake_answers'].append([pre, text])
