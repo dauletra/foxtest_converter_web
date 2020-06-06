@@ -5,9 +5,9 @@ from datetime import datetime
 
 from bottle import run, route, static_file, template, view, request, redirect
 
-from foxtest.Converter import *
-from foxtest.QuizMap import *
-from foxtest.Subject import *
+from foxtest.Converter import open_document, find_questions_single, find_questions_multiple, convert
+from foxtest.QuizMap import QuizMapEncoder, decode_quiz_map
+from foxtest.Subject import Subject, SubjectEncoder, decode_subject
 
 
 main_dir = 'docs'
